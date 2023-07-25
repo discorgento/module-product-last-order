@@ -1,1 +1,1 @@
-# module-product-last-order
+"O módulo module-product-last-order é responsável por gerar uma mensagem personalizada ao cliente quando ele acessar um produto que já foi adquirido anteriormente, informando-o de que ele já realizou a compra desse item. A mensagem personalizada irá apresentar uma frase com esta informação e também a data em que a compra foi feita. Após essa frase terá um link "Detalhes do Pedido", que quando for clicado irá redirecionar o cliente para a página de Detalhes do Pedido, disponibilizando todos os detalhes do pedido que foi acessado." 
