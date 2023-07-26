@@ -1,0 +1,22 @@
+{
+    "name": "discorgento/module-productlastorder",
+    "description": "Product Last Order",
+    "type": "magento2-module",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Discorgento",
+            "email": "hi@discorgento.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Discorgento\\ProductLastOrder\\": ""
+        }
+    }
+}
