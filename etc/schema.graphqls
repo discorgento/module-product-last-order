@@ -1,0 +1,15 @@
+type Query {
+    hasCustomerPurchasedProduct(
+        customerId: String!
+        productId: String!
+    ): HasPurchasedProduct
+        @resolver(
+            class: "Discorgento\\ProductLastOrder\\Model\\Resolver\\HasCustomerPurchasedProduct"
+        )
+}
+
+type HasPurchasedProduct {
+    hasPurchased: Boolean!
+    orderLink: String!
+    orderDate: String!
+}
