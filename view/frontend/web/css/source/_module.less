@@ -1,0 +1,62 @@
+/**
+ * Copyright ©  All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+//
+//  Common
+//  ----------------------------------------------
+
+& when (@media-common =true) {
+    .catalog-product-view {
+        .last-order-container {
+            display: flex;
+            border: 1px #D5D9D9 solid;
+            border-radius: 8px;
+            border-width: 2px;
+            border-left-width: 12px;
+            border-color: #1196AB;
+            padding: 14px 18px 18px;
+            margin-bottom: 10px;
+
+            &::before {
+                content: 'i';
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: #1196AB;
+                color: #ffffff;    
+                height: 22px;
+                width: 23px;
+                border-radius: 10px;
+                font-weight: 700;
+                font-size: 14px;
+            }
+
+            .last-order {
+                margin-left: 10px;
+
+                p {
+                    margin-bottom: 0;
+                }
+
+                .last-order-product,
+                .last-order-date {
+                    font-size: 17px;
+                    line-height: 24px; 
+                    font-weight: 600;
+                }
+
+                a {
+                    color: #1196AB;
+
+                    &.last-order-link-container {
+                        &:hover {
+                            color: #C7511F;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

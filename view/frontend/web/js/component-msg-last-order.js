@@ -14,7 +14,6 @@ define([
 
     return Component.extend({
         isVisible: ko.observable(false),
-        title: ko.observable(''),
         orderLink: ko.observable(''),
         orderDate: ko.observable(''),
 
@@ -70,31 +69,11 @@ define([
                     self.isVisible(true);
                 }
                 
-                self.title(hasPurchased ? $t('Product Purchased') : '');
                 self.orderLink(orderLink);
-
-                const formattedOrderDate = self.formatDateWithTimezone(orderDate);
-                self.orderDate(formattedOrderDate);
+                self.orderDate(orderDate);
             }).fail(function (error) {
                 console.log(error);
             });
-        },
-
-        /**
-         * Formats a date with timezone information.
-         * @param {Date} date - The date to format.
-         * @returns {string} The formatted date.
-         */
-        formatDateWithTimezone: function (date) {
-            const timezoneOffset = new Date(date).getTimezoneOffset();
-            const timezoneOffsetMs = timezoneOffset * 60 * 1000;
-            const localTimeMs = new Date(date).getTime() - timezoneOffsetMs;
-            const formattedDate = new Date(localTimeMs).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-            return formattedDate;
         }
     });
 });
