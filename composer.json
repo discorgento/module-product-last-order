@@ -1,5 +1,5 @@
 {
-    "name": "discorgento/module-productlastorder",
+    "name": "discorgento/module-product-last-order",
     "description": "Product Last Order",
     "type": "magento2-module",
     "license": "GPL-3.0",
@@ -10,7 +10,10 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "php": ">=8.0",
+        "magento/framework": "*"
+    },
     "autoload": {
         "files": [
             "registration.php"
