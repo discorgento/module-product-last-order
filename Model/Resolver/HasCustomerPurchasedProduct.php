@@ -19,17 +19,50 @@ use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\Stdlib\DateTime\DateTimeFormatterInterface;
 use Magento\Framework\Stdlib\DateTime\DateTimeFactory;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 class HasCustomerPurchasedProduct implements ResolverInterface
 {
 
+    /**
+     * @var DataProvider\HasCustomerPurchasedProduct
+     */
     protected $hasCustomerPurchasedProductDataProvider;
+
+    /**
+     * @var CustomerRepositoryInterface
+     */
     protected $customerRepository;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
     protected $orderRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
     protected $searchCriteriaBuilder;
+
+    /**
+     * @var UrlInterface
+     */
     protected $urlHelper;
+
+    /**
+     * @var DateTimeFormatterInterface
+     */
     protected $dateTimeFormatter;
+
+    /**
+     * @var DateTimeFactory
+     */
     protected $dateTimeFactory;
+
+    /**
+     * @var TimezoneInterface
+     */
+    protected $timezone;
 
 
     /**
@@ -42,6 +75,7 @@ class HasCustomerPurchasedProduct implements ResolverInterface
      * @param UrlInterface $urlHelper The url helper.
      * @param DateTimeFormatterInterface $dateTimeFormatter The date time formatter.
      * @param DateTimeFactory $dateTimeFactory The date time factory.
+     * @param TimezoneInterface $timezone The time zone.
      */
     public function __construct(
         DataProvider\HasCustomerPurchasedProduct $hasCustomerPurchasedProductDataProvider,
@@ -50,7 +84,8 @@ class HasCustomerPurchasedProduct implements ResolverInterface
         SearchCriteriaBuilder $searchCriteriaBuilder,
         UrlInterface $urlHelper,
         DateTimeFormatterInterface $dateTimeFormatter,
-        DateTimeFactory $dateTimeFactory
+        DateTimeFactory $dateTimeFactory,
+        TimezoneInterface $timezone
     ) {
         $this->hasCustomerPurchasedProductDataProvider = $hasCustomerPurchasedProductDataProvider;
         $this->customerRepository = $customerRepository;
@@ -59,6 +94,7 @@ class HasCustomerPurchasedProduct implements ResolverInterface
         $this->urlHelper = $urlHelper;
         $this->dateTimeFormatter = $dateTimeFormatter;
         $this->dateTimeFactory = $dateTimeFactory;
+        $this->timezone = $timezone;
     }
 
     /**
@@ -86,7 +122,7 @@ class HasCustomerPurchasedProduct implements ResolverInterface
                         return [
                             'hasPurchased' => true,
                             'orderLink' => $this->getOrderLink($order),
-                            'orderDate' => $this->getFormattedOrderDate($order)
+                            'orderDate' => $this->getFormattedOrderDate($order->getCreatedAt())
                         ];
                     }
                 }
@@ -121,19 +157,28 @@ class HasCustomerPurchasedProduct implements ResolverInterface
         }
     }
 
-    /**
-     * Helper method to get the formatted purchase date.
+   /**
+     * Helper method to get the formatted purchase date with dynamic format based on store settings.
      *
-     * @param OrderInterface $order
+     * @param string $createdAt
      * @return string|null
      */
-    private function getFormattedOrderDate(OrderInterface $order)
+    private function getFormattedOrderDate($createdAt)
     {
         try {
-            $createdAt = $order->getCreatedAt();
-            $createdAtObject = new \DateTime($createdAt);
-            return $createdAtObject->format('Y-m-d H:i:s');
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            $createdAtObject = new \DateTime($createdAt, new \DateTimeZone($this->timezone->getConfigTimezone()));
+            $userTimezone = $this->timezone->getConfigTimezone();
+            $format = \IntlDateFormatter::MEDIUM;
+        
+            return $this->timezone->formatDateTime(
+                $createdAtObject,
+                $format,
+                \IntlDateFormatter::NONE,
+                null,
+                $userTimezone
+            );
+            
+        } catch (\Exception $e) {
             return '';
         }
     }
