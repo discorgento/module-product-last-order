@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- 
+/**
+ * Copyright ©  All rights reserved.
+ * See COPYING.txt for license details.
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\GraphQl\Query\ResolverInterface">
+        <arguments>
+            <argument name="resolvers" xsi:type="array">
+                <item name="hasCustomerPurchasedProduct" xsi:type="object">Discorgento\ProductLastOrder\Model\Resolver\HasCustomerPurchasedProduct</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Discorgento\ProductLastOrder\Block\ProductLastOrder">
+        <arguments>
+            <argument name="registry" xsi:type="object">Magento\Framework\Registry</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\App\Action\AbstractAction">
+        <plugin name="get_customr_id_full_page"  disabled="false" sortOrder="20" type="Discorgento\ProductLastOrder\Plugin\Framework\App\Action\AbstractAction"/>
+    </type>
+</config>
