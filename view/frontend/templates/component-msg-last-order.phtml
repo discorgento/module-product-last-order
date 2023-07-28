@@ -1,0 +1,29 @@
+<!-- 
+/**
+ * Copyright ©  All rights reserved.
+ * See COPYING.txt for license details.
+ */
+ -->
+
+<div data-bind="scope: 'component-msg-last-order'">
+    <!-- ko if: isVisible() -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+    <!-- /ko -->
+</div>
+
+<script type="text/x-magento-init">
+{
+    "*": {
+        "Magento_Ui/js/core/app": {
+            "components": {
+                "component-msg-last-order": {
+                    "component": "Discorgento_ProductLastOrder/js/component-msg-last-order",
+                    "template": "Discorgento_ProductLastOrder/component-msg-last-order",
+                    "customerId": "<?php echo $block->getCustomerId(); ?>",
+                    "productId": "<?php echo $block->getProductId(); ?>"
+                }
+            }
+        }
+    }
+}
+</script>
