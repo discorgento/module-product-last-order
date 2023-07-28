@@ -19,6 +19,6 @@
         </arguments>
     </type>
     <type name="Magento\Framework\App\Action\AbstractAction">
-        <plugin name="get_customr_id_full_page"  disabled="false" sortOrder="20" type="Discorgento\ProductLastOrder\Plugin\Framework\App\Action\AbstractAction"/>
+        <plugin name="get_customer_id_full_page"  disabled="false" sortOrder="20" type="Discorgento\ProductLastOrder\Plugin\Framework\App\Action\AddCustomDataAfterAction"/>
     </type>
 </config>
