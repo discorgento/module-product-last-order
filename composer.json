@@ -2,7 +2,7 @@
     "name": "discorgento/module-product-last-order",
     "description": "Product Last Order",
     "type": "magento2-module",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "GPL-3.0",
     "authors": [
         {
