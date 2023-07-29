@@ -57,7 +57,7 @@ If you encounter any issues with the module or want to contribute improvements, 
 
 ## License
 
-This module is distributed under the [XYZ License](link-to-license). Please read the "LICENSE" file for more information.
+This module is distributed under the [GNU General Public License v3.0](https://github.com/discorgento/module-product-last-order/blob/feat/readme/LICENSE.txt). Please read the "LICENSE" file for more information.
 
 ## Author
 
