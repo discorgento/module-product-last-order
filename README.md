@@ -51,6 +51,10 @@ After the installation, the module will automatically generate the personalized 
 
 By clicking on the "Order Details" link in the message, the customer will be redirected to the corresponding Order Details page, where they can access all the information about the order.
 
+![Print Desktop](docs/print-desktop.png)
+
+![Print Mobile](docs/print-mobile.png)
+
 ## Support and Contributions
 
 If you encounter any issues with the module or want to contribute improvements, feel free to open an [issue](https://github.com/discorgento/module-product-last-order/issue) or submit a [pull request](https://github.com/discorgento/module-product-last-order/pulls) on the [module's repository](https://github.com/discorgento/module-product-last-order).
