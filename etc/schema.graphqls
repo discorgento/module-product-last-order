@@ -6,6 +6,7 @@ type Query {
         @resolver(
             class: "Discorgento\\ProductLastOrder\\Model\\Resolver\\HasCustomerPurchasedProduct"
         )
+        @cache(cacheIdentity: "Discorgento\\ProductLastOrder\\Model\\Resolver\\ProductLastOrderIdentity" cacheable: true)
 }
 
 type HasPurchasedProduct {
