@@ -38,9 +38,26 @@ define([
             let self = this;
 
             let urlGraphql = urlBuilder.build('graphql');
-            let queryGraphql = 'query CheckCustomerProductPurchase($customerId: String!, $productId: String!) { hasCustomerPurchasedProduct(customerId: $customerId, productId: $productId) { hasPurchased orderLink orderDate }}&variables={"customerId": "'+ self.customerId +'", "productId": "'+self.productId+'"}';
+            let queryGraphqlObject =  {
+                query: `
+                query CheckCustomerProductPurchase($customerId: String!, $productId: String!) {
+                    hasCustomerPurchasedProduct(customerId: $customerId, productId: $productId) {
+                        hasPurchased
+                        orderLink
+                        orderDate
+                    }
+                }`
+            };
+
+            let variablesGraphql = JSON.stringify({
+                customerId: self.customerId,
+                productId: self.productId
+            });
+
+            let queryEncoded = $.param(queryGraphqlObject);
+            let queryGraphql = queryEncoded+'&variables='+ variablesGraphql;
             let requestConfig = {
-                url: urlGraphql +'?query='+queryGraphql,
+                url: urlGraphql +'?'+queryGraphql,
                 method: 'GET'
             };
 
