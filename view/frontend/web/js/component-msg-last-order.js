@@ -26,7 +26,7 @@ define([
          */
         initialize: function (config) {
             const { customerId, productId } = config;
-            
+
             this._super();
             this.makeGraphQLRequest();
         },
@@ -35,30 +35,13 @@ define([
          * Makes a GraphQL request to check if a customer has purchased a product.
          */
         makeGraphQLRequest: function () {
-            var self = this;
+            let self = this;
 
-            var urlGraphql = urlBuilder.build('graphql');
-
-            var requestConfig = {
-                url: urlGraphql,
-                method: 'POST',
-                dataType: 'json',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    query: `
-                        query CheckCustomerProductPurchase($customerId: String!, $productId: String!) {
-                            hasCustomerPurchasedProduct(customerId: $customerId, productId: $productId) {
-                                hasPurchased
-                                orderLink
-                                orderDate
-                            }
-                        }
-                    `,
-                    variables: {
-                        customerId: self.customerId,
-                        productId: self.productId
-                    }
-                })
+            let urlGraphql = urlBuilder.build('graphql');
+            let queryGraphql = 'query CheckCustomerProductPurchase($customerId: String!, $productId: String!) { hasCustomerPurchasedProduct(customerId: $customerId, productId: $productId) { hasPurchased orderLink orderDate }}&variables={"customerId": "'+ self.customerId +'", "productId": "'+self.productId+'"}';
+            let requestConfig = {
+                url: urlGraphql +'?query='+queryGraphql,
+                method: 'GET'
             };
 
             $.ajax(requestConfig).done(function (response) {
@@ -68,7 +51,7 @@ define([
                 if (hasPurchased) {
                     self.isVisible(true);
                 }
-                
+
                 self.orderLink(orderLink);
                 self.orderDate(orderDate);
             }).fail(function (error) {

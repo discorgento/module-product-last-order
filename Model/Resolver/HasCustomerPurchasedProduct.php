@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Discorgento\ProductLastOrder\Model\Resolver;
 
+use Exception;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
@@ -102,10 +103,23 @@ class HasCustomerPurchasedProduct implements ResolverInterface
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
-        $customerId = $args['customerId'];
-        $productId = $args['productId'];
+        $customerId = (int)$args['customerId'];
+        $productId = (int)$args['productId'];
+        $dataSkeleton = [
+            'hasPurchased' => false,
+            'orderLink' => '',
+            'orderDate' => '',
+            'customer_id' => '',
+            'product_id' => ''
+        ];
 
         try {
+
+            // Avoid request if there's no customer_id(not logged)
+            if (empty($customerId)) {
+                return $dataSkeleton;
+            }
+
             $customer = $this->customerRepository->getById($customerId);
             $customerEmail = $customer->getEmail();
 
@@ -117,29 +131,23 @@ class HasCustomerPurchasedProduct implements ResolverInterface
 
             foreach ($orders as $order) {
                 foreach ($order->getAllVisibleItems() as $item) {
-                    if ($item->getProductId() == $productId) {
+                    if ((int)$item->getProductId() === $productId) {
 
                         return [
                             'hasPurchased' => true,
                             'orderLink' => $this->getOrderLink($order),
-                            'orderDate' => $this->getFormattedOrderDate($order->getCreatedAt())
+                            'orderDate' => $this->getFormattedOrderDate($order->getCreatedAt()),
+                            'customer_id' => $customerId,
+                            'product_id' => $productId
                         ];
                     }
                 }
             }
-        } catch (\Exception $e) {
-            return [
-                'hasPurchased' => false,
-                'orderLink' => '',
-                'orderDate' => ''
-            ];
+        } catch (Exception) {
+            return $dataSkeleton;
         }
 
-        return [
-            'hasPurchased' => false,
-            'orderLink' => '',
-            'orderDate' => ''
-        ];
+        return $dataSkeleton;
     }
 
     /**
@@ -169,7 +177,7 @@ class HasCustomerPurchasedProduct implements ResolverInterface
             $createdAtObject = new \DateTime($createdAt, new \DateTimeZone($this->timezone->getConfigTimezone()));
             $userTimezone = $this->timezone->getConfigTimezone();
             $format = \IntlDateFormatter::MEDIUM;
-        
+
             return $this->timezone->formatDateTime(
                 $createdAtObject,
                 $format,
@@ -177,8 +185,8 @@ class HasCustomerPurchasedProduct implements ResolverInterface
                 null,
                 $userTimezone
             );
-            
-        } catch (\Exception $e) {
+
+        } catch (Exception $e) {
             return '';
         }
     }
