@@ -11,7 +11,7 @@ namespace Discorgento\ProductLastOrder\Model\Resolver;
 
 use Magento\Framework\GraphQl\Query\Resolver\IdentityInterface;
 
-class Identity implements IdentityInterface
+class ProductLastOrderIdentity implements IdentityInterface
 {
     private string $cacheTag = 'disc_productlastorder';
 
