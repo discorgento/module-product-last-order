@@ -71,4 +71,4 @@ This module is distributed under the [GNU General Public License v3.0](https://g
 
 ## Notes 🗒
  - issues and PRs are welcome in this repo;
- - we want **YOU** for [our community](https://discord.io/Discorgento)!
+ - we want **YOU** for [our community](https://discorgento.com/discord)!
