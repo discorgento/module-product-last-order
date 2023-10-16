@@ -10,27 +10,27 @@
 & when (@media-common =true) {
     .catalog-product-view {
         .last-order-container {
-            display: flex;
-            border: 1px #D5D9D9 solid;
+            border: 1px #d5d9d9 solid;
+            border-color: #1196ab;
+            border-left-width: 12px;
             border-radius: 8px;
             border-width: 2px;
-            border-left-width: 12px;
-            border-color: #1196AB;
-            padding: 14px 18px 18px;
+            display: flex;
             margin-bottom: 10px;
+            padding: 14px 18px 18px;
 
             &::before {
+                align-items: center;
+                background: #1196ab;
+                border-radius: 10px;
+                color: #fff;
                 content: 'i';
                 display: flex;
-                justify-content: center;
-                align-items: center;
-                background: #1196AB;
-                color: #ffffff;    
-                height: 22px;
-                min-width: 23px;
-                border-radius: 10px;
-                font-weight: 700;
                 font-size: 14px;
+                font-weight: 700;
+                height: 22px;
+                justify-content: center;
+                min-width: 23px;
             }
 
             .last-order {
@@ -43,16 +43,16 @@
                 .last-order-product,
                 .last-order-date {
                     font-size: 17px;
-                    line-height: 24px; 
                     font-weight: 600;
+                    line-height: 24px;
                 }
 
                 a {
-                    color: #1196AB;
+                    color: #1196ab;
 
                     &.last-order-link-container {
                         &:hover {
-                            color: #C7511F;
+                            color: #c7511f;
                         }
                     }
                 }

@@ -65,7 +65,6 @@ class HasCustomerPurchasedProduct implements ResolverInterface
      */
     protected $timezone;
 
-
     /**
      * Class constructor.
      *
@@ -166,11 +165,11 @@ class HasCustomerPurchasedProduct implements ResolverInterface
     }
 
    /**
-     * Helper method to get the formatted purchase date with dynamic format based on store settings.
-     *
-     * @param string $createdAt
-     * @return string|null
-     */
+    * Helper method to get the formatted purchase date with dynamic format based on store settings.
+    *
+    * @param string $createdAt
+    * @return string|null
+    */
     private function getFormattedOrderDate($createdAt)
     {
         try {
