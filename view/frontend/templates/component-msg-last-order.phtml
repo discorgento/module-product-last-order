@@ -19,8 +19,8 @@
                 "component-msg-last-order": {
                     "component": "Discorgento_ProductLastOrder/js/component-msg-last-order",
                     "template": "Discorgento_ProductLastOrder/component-msg-last-order",
-                    "customerId": "<?= $block->getCustomerId(); ?>",
-                    "productId": "<?= $block->getProductId(); ?>"
+                    "customerId": "<?= /* @noEscape */ $block->getCustomerId(); ?>",
+                    "productId": "<?= /* @noEscape */ $block->getProductId(); ?>"
                 }
             }
         }

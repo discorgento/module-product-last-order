@@ -68,7 +68,8 @@ class HasCustomerPurchasedProduct implements ResolverInterface
     /**
      * Class constructor.
      *
-     * @param DataProvider\HasCustomerPurchasedProduct $hasCustomerPurchasedProductDataProvider The data provider for checking if the customer has purchased a product.
+     * @param DataProvider\HasCustomerPurchasedProduct $hasCustomerPurchasedProductDataProvider The data provider for
+     * checking if the customer has purchased a product.
      * @param CustomerRepositoryInterface $customerRepository The repository for accessing customer data.
      * @param OrderRepositoryInterface $orderRepository The repository for accessing order data.
      * @param SearchCriteriaBuilder $searchCriteriaBuilder The search criteria builder.

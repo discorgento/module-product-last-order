@@ -17,7 +17,14 @@ use Magento\Framework\App\Http\Context as HttpContext;
 
 class ProductLastOrder extends \Magento\Framework\View\Element\Template
 {
+    /**
+     * @var Registry
+     */
     protected $registry;
+
+    /**
+     * @var Session
+     */
     protected $customerSession;
 
     /**
