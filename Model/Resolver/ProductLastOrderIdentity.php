@@ -13,6 +13,9 @@ use Magento\Framework\GraphQl\Query\Resolver\IdentityInterface;
 
 class ProductLastOrderIdentity implements IdentityInterface
 {
+    /**
+     * @var string
+     */
     private string $cacheTag = 'disc_productlastorder';
 
     /**
