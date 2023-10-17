@@ -1,14 +1,24 @@
-# Magento 2 Module: Product Last Order
+![Discorgento Product Last Order](docs/header.png)
+
+<p align="center">Magento 2 Module: Product Last Order</p>
+<p align="center">
+    <a href="https://github.com/discorgento/module-product-last-order/stargazers" target="_blank"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/discorgento/module-product-last-order?style=social"/></a>
+    <!-- <a href="https://packagist.org/packages/discorgento/module-product-last-order/stats" target="_blank"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/discorgento/module-product-last-order"/></a> -->
+    <a target="_blank" href="https://packagist.org/packages/discorgento/module-product-last-order"><img src="https://img.shields.io/packagist/v/discorgento/module-product-last-order" alt="Latest Version on Packagist"></a>
+    <a target="_blank" href="https://discorgento.com/discord"><img alt="Join our Discord" src="https://img.shields.io/discord/768653248902332428?color=%237289d9&label=Discord"/></a>
+</p>
+
+## Overview 💭
 
 The "Product Last Order" module is an extension for Magento 2 developed by Discorgento that generates a personalized message to the customer when they access a product that has been previously purchased. The message informs the customer that they have already bought this item and also displays the date of the purchase. Additionally, the module adds a "Order Details" link that, when clicked, redirects the customer to the corresponding Order Details page, providing all the details of the accessed order.
 
-## Features
+## Features 🧩
 
 - Generates a personalized message for products previously purchased by the customer.
 - Displays the date of the product purchase.
 - Adds an "Order Details" link to redirect the customer to the Order Details page.
 
-## System Requirements
+## System Requirements ⚙️
 
 Make sure your Magento 2 installation meets the following requirements:
 
@@ -16,7 +26,7 @@ Make sure your Magento 2 installation meets the following requirements:
 - PHP 8.x
 - Composer
 
-## Installation
+## Installation 🔧
 
 You can install the "Product Last Order" module via Composer. To do this, execute the following commands in the terminal:
 
@@ -45,7 +55,7 @@ php bin/magento setup:upgrade
 php bin/magento cache:clean
 ```
 
-## Usage
+## Usage 🥤
 
 After the installation, the module will automatically generate the personalized message on products that have been previously purchased by the customer. The message will be displayed on the product detail page.
 
@@ -55,15 +65,15 @@ By clicking on the "Order Details" link in the message, the customer will be red
 
 ![Print Mobile](docs/print-mobile.png)
 
-## Support and Contributions
+## Support and Contributions 🫵
 
 If you encounter any issues with the module or want to contribute improvements, feel free to open an [issue](https://github.com/discorgento/module-product-last-order/issue) or submit a [pull request](https://github.com/discorgento/module-product-last-order/pulls) on the [module's repository](https://github.com/discorgento/module-product-last-order).
 
-## License
+## License 🦬
 
 This module is distributed under the [GNU General Public License v3.0](https://github.com/discorgento/module-product-last-order/blob/main/LICENSE.txt). Please read the "LICENSE" file for more information.
 
-## Author
+## Author 👤
 
 "Product Last Order" was developed by [Discorgento](https://www.discorgento.com).
 
