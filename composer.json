@@ -3,6 +3,10 @@
     "description": "Product Last Order",
     "type": "magento2-module",
     "license": "GPL-3.0",
+    "require": {
+        "php": ">=8.0",
+        "magento/framework": "*"
+    },
     "authors": [
         {
             "name": "Discorgento",
@@ -10,15 +14,12 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {
-        "php": ">=8.0"
-    },
     "autoload": {
         "files": [
-            "registration.php"
+            "src/registration.php"
         ],
         "psr-4": {
-            "Discorgento\\ProductLastOrder\\": ""
+            "Discorgento\\ProductLastOrder\\": "src/"
         }
     }
 }
