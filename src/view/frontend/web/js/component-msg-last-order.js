@@ -71,7 +71,7 @@ define([
                         orderDate
                     }
                 }`;
-
+        
             const requestData = {
                 query: queryGraphql,
                 variables: {
@@ -79,10 +79,12 @@ define([
                     productId: this.productId,
                 },
             };
-
+        
             storage
                 .post(urlGraphql, JSON.stringify(requestData), true)
-                .done(self.handleResponse)
+                .done(function(response) {
+                    self.handleResponse(response);
+                })
                 .fail(self.handleError);
         },
 
