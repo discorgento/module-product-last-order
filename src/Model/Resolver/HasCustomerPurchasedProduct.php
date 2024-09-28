@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Discorgento\ProductLastOrder\Model\Resolver;
 
 use Exception;
+use Psr\Log\LoggerInterface;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
@@ -18,65 +19,29 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Framework\Stdlib\DateTime\DateTimeFormatterInterface;
-use Magento\Framework\Stdlib\DateTime\DateTimeFactory;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 class HasCustomerPurchasedProduct implements ResolverInterface
 {
-
-    /**
-     * @var DataProvider\HasCustomerPurchasedProduct
-     */
     protected $hasCustomerPurchasedProductDataProvider;
-
-    /**
-     * @var CustomerRepositoryInterface
-     */
     protected $customerRepository;
-
-    /**
-     * @var OrderRepositoryInterface
-     */
     protected $orderRepository;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
     protected $searchCriteriaBuilder;
-
-    /**
-     * @var UrlInterface
-     */
     protected $urlHelper;
-
-    /**
-     * @var DateTimeFormatterInterface
-     */
-    protected $dateTimeFormatter;
-
-    /**
-     * @var DateTimeFactory
-     */
-    protected $dateTimeFactory;
-
-    /**
-     * @var TimezoneInterface
-     */
     protected $timezone;
+    private $logger;
+
 
     /**
-     * Class constructor.
+     * Constructor
      *
-     * @param DataProvider\HasCustomerPurchasedProduct $hasCustomerPurchasedProductDataProvider The data provider for
-     * checking if the customer has purchased a product.
-     * @param CustomerRepositoryInterface $customerRepository The repository for accessing customer data.
-     * @param OrderRepositoryInterface $orderRepository The repository for accessing order data.
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder The search criteria builder.
-     * @param UrlInterface $urlHelper The url helper.
-     * @param DateTimeFormatterInterface $dateTimeFormatter The date time formatter.
-     * @param DateTimeFactory $dateTimeFactory The date time factory.
-     * @param TimezoneInterface $timezone The time zone.
+     * @param DataProvider\HasCustomerPurchasedProduct $hasCustomerPurchasedProductDataProvider
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param OrderRepositoryInterface $orderRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param UrlInterface $urlHelper
+     * @param TimezoneInterface $timezone
+     * @param LoggerInterface $logger
      */
     public function __construct(
         DataProvider\HasCustomerPurchasedProduct $hasCustomerPurchasedProductDataProvider,
@@ -84,79 +49,98 @@ class HasCustomerPurchasedProduct implements ResolverInterface
         OrderRepositoryInterface $orderRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         UrlInterface $urlHelper,
-        DateTimeFormatterInterface $dateTimeFormatter,
-        DateTimeFactory $dateTimeFactory,
-        TimezoneInterface $timezone
+        TimezoneInterface $timezone,
+        LoggerInterface $logger
     ) {
         $this->hasCustomerPurchasedProductDataProvider = $hasCustomerPurchasedProductDataProvider;
         $this->customerRepository = $customerRepository;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->urlHelper = $urlHelper;
-        $this->dateTimeFormatter = $dateTimeFormatter;
-        $this->dateTimeFactory = $dateTimeFactory;
         $this->timezone = $timezone;
+        $this->logger = $logger;
     }
 
     /**
      * @inheritdoc
      */
-    public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
+    public function resolve(Field $field, $context, ResolveInfo $info, ?array $value = null, ?array $args = null): array
     {
-        $customerId = (int)$args['customerId'];
-        $productId = (int)$args['productId'];
-        $dataSkeleton = [
-            'hasPurchased' => false,
-            'orderLink' => '',
-            'orderDate' => '',
-            'customer_id' => '',
-            'product_id' => ''
-        ];
+        $customerId = (int)($args['customerId'] ?? 0);
+        $productId = (int)($args['productId'] ?? 0);
+
+        if ($customerId === 0 || $productId === 0) {
+            return $this->getPurchaseDataSkeleton();
+        }
 
         try {
-
-            // Avoid request if there's no customer_id(not logged)
-            if (empty($customerId)) {
-                return $dataSkeleton;
-            }
-
-            $customer = $this->customerRepository->getById($customerId);
-            $customerEmail = $customer->getEmail();
+            $customerEmail = $this->customerRepository->getById($customerId)->getEmail();
 
             $searchCriteria = $this->searchCriteriaBuilder
                 ->addFilter('customer_email', $customerEmail, 'eq')
                 ->create();
 
             $orders = $this->orderRepository->getList($searchCriteria);
+            $ordersItems = $orders->getItems();
 
-            foreach ($orders as $order) {
-                foreach ($order->getAllVisibleItems() as $item) {
-                    if ((int)$item->getProductId() === $productId) {
-
-                        return [
-                            'hasPurchased' => true,
-                            'orderLink' => $this->getOrderLink($order),
-                            'orderDate' => $this->getFormattedOrderDate($order->getCreatedAt()),
-                            'customer_id' => $customerId,
-                            'product_id' => $productId
-                        ];
-                    }
+            foreach ($ordersItems as $order) {
+                if ($this->hasProductInOrder($order, $productId)) {
+                    return [
+                        'hasPurchased' => true,
+                        'orderLink' => $this->getOrderLink($order),
+                        'orderDate' => $this->formatOrderDate($order->getCreatedAt()),
+                    ];
                 }
             }
-        } catch (Exception) {
-            return $dataSkeleton;
+        } catch (Exception $e) {
+            $this->logger->error($e->getMessage());
         }
 
-        return $dataSkeleton;
+        return $this->getPurchaseDataSkeleton();
     }
 
     /**
-     * Helper method to get order preview link.
+     * Check if the given product ID is present in the given order.
+     *
+     * This method will iterate over all visible items in the order and check if
+     * any of them have the given product ID.
+     *
+     * @param OrderInterface $order The order to check.
+     * @param int            $productId The product ID to search for.
+     *
+     * @return bool TRUE if the product is present in the order, FALSE otherwise.
+     */
+    private function hasProductInOrder(OrderInterface $order, int $productId): bool
+    {
+        foreach ($order->getAllVisibleItems() as $item) {
+            if ((int)$item->getProductId() === $productId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Return the skeleton of the purchase data array with default values.
+     *
+     * @return array
+     */
+    private function getPurchaseDataSkeleton(): array
+    {
+        return [
+            'hasPurchased' => false,
+            'orderLink' => '',
+            'orderDate' => '',
+        ];
+    }
+
+    /**
+     * Get the link to the order page
      *
      * @param OrderInterface $order
-     * @return string|null
+     * @return string
      */
-    private function getOrderLink(OrderInterface $order)
+    private function getOrderLink(OrderInterface $order): string
     {
         try {
             return $this->urlHelper->getUrl('sales/order/view', ['order_id' => $order->getEntityId()]);
@@ -165,29 +149,19 @@ class HasCustomerPurchasedProduct implements ResolverInterface
         }
     }
 
-   /**
-    * Helper method to get the formatted purchase date with dynamic format based on store settings.
-    *
-    * @param string $createdAt
-    * @return string|null
-    */
-    private function getFormattedOrderDate($createdAt)
+    /**
+     * Format the order date from the given datetime string.
+     *
+     * @param string $createdAt The datetime string in the format that the Magento
+     *                           timezone object expects.
+     * @return string The formatted datetime string.
+     */
+    private function formatOrderDate(string $createdAt): string
     {
-        try {
-            $createdAtObject = new \DateTime($createdAt, new \DateTimeZone($this->timezone->getConfigTimezone()));
-            $userTimezone = $this->timezone->getConfigTimezone();
-            $format = \IntlDateFormatter::MEDIUM;
-
-            return $this->timezone->formatDateTime(
-                $createdAtObject,
-                $format,
-                \IntlDateFormatter::NONE,
-                null,
-                $userTimezone
-            );
-
-        } catch (Exception $e) {
-            return '';
-        }
+        return $this->timezone->formatDateTime(
+            new \DateTime($createdAt, new \DateTimeZone($this->timezone->getConfigTimezone())),
+            \IntlDateFormatter::MEDIUM,
+            \IntlDateFormatter::NONE
+        );
     }
 }
