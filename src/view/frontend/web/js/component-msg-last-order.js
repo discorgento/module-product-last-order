@@ -48,6 +48,61 @@ define([
         },
 
         /**
+         * Checks the cache before making a request.
+         */
+        checkCacheOrMakeRequest: function () {
+            const cachedResponse = localStorage.getItem(this.cacheKey);
+            cachedResponse
+                ? this.handleResponse(JSON.parse(cachedResponse))
+                : this.makeGraphQLRequest();
+        },
+
+        /**
+         * Makes a GraphQL request to check if a customer has purchased a product.
+         */
+        makeGraphQLRequest: function () {
+            const self = this;
+            const urlGraphql = urlBuilder.build("graphql");
+            const queryGraphql = `
+                query CheckCustomerProductPurchase($customerId: String!, $productId: String!) {
+                    hasCustomerPurchasedProduct(customerId: $customerId, productId: $productId) {
+                        hasPurchased
+                        orderLink
+                        orderDate
+                    }
+                }`;
+
+            const requestData = {
+                query: queryGraphql,
+                variables: {
+                    customerId: this.customerId,
+                    productId: this.productId,
+                },
+            };
+
+            storage
+                .post(urlGraphql, JSON.stringify(requestData), true)
+                .done(self.handleResponse)
+                .fail(self.handleError);
+        },
+
+        /**
+         * Handles the response from the GraphQL request.
+         *
+         * @param {Object} response - The response object.
+         */
+        handleResponse: function (response) {
+            const purchaseData = response.data?.hasCustomerPurchasedProduct;
+
+            if (!purchaseData || purchaseData.hasPurchased === false) {
+                return;
+            }
+
+            this.updateUI(purchaseData);
+            localStorage.setItem(this.cacheKey, JSON.stringify(response));
+        },
+
+        /**
          * Updates the UI with the purchase data.
          *
          * @param {Object} purchaseData - The purchase data object.
@@ -65,54 +120,6 @@ define([
          */
         handleError: function (error) {
             console.error(error);
-        },
-
-        /**
-         * Checks the cache before making a request.
-         */
-        checkCacheOrMakeRequest: function () {
-            const cachedResponse = localStorage.getItem(this.cacheKey);
-            cachedResponse ? this.handleResponse(JSON.parse(cachedResponse)) : this.makeGraphQLRequest();
-        },
-
-        /**
-         * Makes a GraphQL request to check if a customer has purchased a product.
-         */
-        makeGraphQLRequest: function () {
-            const urlGraphql = urlBuilder.build('graphql');
-            const queryGraphql = `
-                query CheckCustomerProductPurchase($customerId: String!, $productId: String!) {
-                    hasCustomerPurchasedProduct(customerId: $customerId, productId: $productId) {
-                        hasPurchased
-                        orderLink
-                        orderDate
-                    }
-                }`;
-
-            const requestData = {
-                query: queryGraphql,
-                variables: { customerId: this.customerId, productId: this.productId }
-            };
-
-            storage.post(urlGraphql, JSON.stringify(requestData), true)
-                .done(this.handleResponse)
-                .fail(this.handleError);
-        },
-
-        /**
-         * Handles the response from the GraphQL request.
-         *
-         * @param {Object} response - The response object.
-         */
-        handleResponse: function (response) {
-            const purchaseData = response.data?.hasCustomerPurchasedProduct;
-        
-            if (!purchaseData || purchaseData.hasPurchased === false) {
-                return;
-            }
-        
-            this.updateUI(purchaseData);
-            localStorage.setItem(this.cacheKey, JSON.stringify(response));
         }
     });
 });
