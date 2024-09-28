@@ -32,15 +32,15 @@ define([
             this.productId = config.productId;
             this.cacheKey = `customer_${this.customerId}_product_${this.productId}_purchase`;
 
-            this.checkInputs() && this.checkCacheOrMakeRequest();
+            this.checkData() && this.checkCacheOrMakeRequest();
         },
 
         /**
-         * Checks if the input data is valid.
+         * Checks if the data is valid.
          *
          * @returns {boolean} - True if valid, false otherwise.
          */
-        checkInputs: function () {
+        checkData: function () {
             if (!this.customerId || !this.productId) {
                 return false;
             }
@@ -111,7 +111,6 @@ define([
                 return;
             }
         
-            // Atualiza a interface se os dados de compra forem válidos
             this.updateUI(purchaseData);
             localStorage.setItem(this.cacheKey, JSON.stringify(response));
         }
