@@ -17,7 +17,7 @@ define([
         isVisible: ko.observable(false),
         orderLink: ko.observable(''),
         orderDate: ko.observable(''),
-        errorMessage: ko.observable(''),
+        cacheKey: '',
 
         /**
          * Initializes the function.
@@ -30,36 +30,49 @@ define([
             this._super();
             this.customerId = config.customerId;
             this.productId = config.productId;
+            this.cacheKey = `customer_${this.customerId}_product_${this.productId}_purchase`;
 
-            if (this.validateInput()) {
-                this.checkCacheOrMakeRequest();
-            }
+            this.checkInputs() && this.checkCacheOrMakeRequest();
         },
 
         /**
-         * Validates input data.
+         * Checks if the input data is valid.
          *
          * @returns {boolean} - True if valid, false otherwise.
          */
-        validateInput: function () {
+        checkInputs: function () {
             if (!this.customerId || !this.productId) {
-                this.errorMessage($t('Invalid customer or product ID.'));
                 return false;
             }
             return true;
         },
 
         /**
+         * Updates the UI with the purchase data.
+         *
+         * @param {Object} purchaseData - The purchase data object.
+         */
+        updateUI: function ({ hasPurchased, orderLink, orderDate }) {
+            this.isVisible(hasPurchased);
+            this.orderLink(orderLink);
+            this.orderDate(orderDate);
+        },
+
+        /**
+         * Handles errors from the GraphQL request.
+         *
+         * @param {Object} error - The error object.
+         */
+        handleError: function (error) {
+            console.error(error);
+        },
+
+        /**
          * Checks the cache before making a request.
          */
         checkCacheOrMakeRequest: function () {
-            const cacheKey = `${this.customerId}-${this.productId}`;
-            const cachedResponse = localStorage.getItem(cacheKey);
-            if (cachedResponse) {
-                this.handleResponse(JSON.parse(cachedResponse));
-            } else {
-                this.makeGraphQLRequest();
-            }
+            const cachedResponse = localStorage.getItem(this.cacheKey);
+            cachedResponse ? this.handleResponse(JSON.parse(cachedResponse)) : this.makeGraphQLRequest();
         },
 
         /**
@@ -78,15 +91,12 @@ define([
 
             const requestData = {
                 query: queryGraphql,
-                variables: {
-                    customerId: this.customerId,
-                    productId: this.productId
-                }
+                variables: { customerId: this.customerId, productId: this.productId }
             };
 
             storage.post(urlGraphql, JSON.stringify(requestData), true)
-                .done(this.handleResponse.bind(this))
-                .fail(this.handleError.bind(this));
+                .done(this.handleResponse)
+                .fail(this.handleError);
         },
 
         /**
@@ -95,32 +105,15 @@ define([
          * @param {Object} response - The response object.
          */
         handleResponse: function (response) {
-
-            const { hasCustomerPurchasedProduct } = response.data || {};
-            if (!hasCustomerPurchasedProduct) {
-                this.errorMessage($t('No data found for this customer and product.'));
+            const purchaseData = response.data?.hasCustomerPurchasedProduct;
+        
+            if (!purchaseData || purchaseData.hasPurchased === false) {
                 return;
             }
-
-            const { hasPurchased, orderLink, orderDate } = hasCustomerPurchasedProduct;
-
-            this.isVisible(hasPurchased);
-            this.orderLink(orderLink);
-            this.orderDate(orderDate);
-            this.errorMessage('');
-
-            const cacheKey = `${this.customerId}-${this.productId}`;
-            localStorage.setItem(cacheKey, JSON.stringify(response));
-        },
-
-        /**
-         * Handles errors from the GraphQL request.
-         *
-         * @param {Object} error - The error object.
-         */
-        handleError: function (error) {
-            console.error(error);
-            this.errorMessage($t('An error occurred while processing your request.'));
+        
+            // Atualiza a interface se os dados de compra forem válidos
+            this.updateUI(purchaseData);
+            localStorage.setItem(this.cacheKey, JSON.stringify(response));
         }
     });
 });
