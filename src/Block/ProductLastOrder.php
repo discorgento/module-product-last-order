@@ -11,9 +11,8 @@ namespace Discorgento\ProductLastOrder\Block;
 
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Catalog\Model\Product;
-use Magento\Customer\Model\Session;
+use Magento\Customer\Model\SessionFactory;
 use Magento\Framework\Registry;
-use Magento\Framework\App\Http\Context as HttpContext;
 
 class ProductLastOrder extends \Magento\Framework\View\Element\Template
 {
@@ -23,33 +22,33 @@ class ProductLastOrder extends \Magento\Framework\View\Element\Template
     protected $registry;
 
     /**
-     * @var Session
+     * @var SessionFactory
      */
-    protected $customerSession;
+    protected $customerSessionFactory;
 
     /**
      * Constructor.
      *
-     * @param Context $context
-     * @param Product $product
-     * @param Session $customerSession
-     * @param Registry $registry
-     * @param HttpContext $httpContext
+     * @param Context $context The context of the block.
+     * @param Product $product The current product.
+     * @param SessionFactory $customerSessionFactory The customer session factory.
+     * @param Registry $registry The registry of the page.
      */
     public function __construct(
         Context $context,
         Product $product,
-        Session $customerSession,
-        Registry $registry,
-        HttpContext $httpContext
+        SessionFactory $customerSessionFactory,
+        Registry $registry
     ) {
+        /**
+         * Call the parent constructor.
+         */
         parent::__construct($context);
         $this->product = $product;
-        $this->customerSession = $customerSession;
+        $this->customerSessionFactory = $customerSessionFactory;
         $this->registry = $registry;
-        $this->httpContext = $httpContext;
     }
-    
+
     /**
      * Retrieves the product ID.
      *
@@ -57,7 +56,6 @@ class ProductLastOrder extends \Magento\Framework\View\Element\Template
      */
     public function getProductId()
     {
-        // Verifica se existe um produto no registro e recupera o ID do produto
         if ($product = $this->registry->registry('current_product')) {
             return $product->getId();
         }
@@ -66,12 +64,13 @@ class ProductLastOrder extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * Retrieves the customer ID.
+     * Retrieves the customer ID from the current session.
      *
-     * @return int|null The customer ID if available, null otherwise.
+     * @return int The customer ID if the customer is logged in, null otherwise.
      */
     public function getCustomerId()
     {
-        return $this->httpContext->getValue('current_customer_id');
+        $customerSession = $this->customerSessionFactory->create();
+        return $customerSession->getCustomerId();
     }
 }
